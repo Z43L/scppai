@@ -1,3 +1,6 @@
+#ifndef LENGUAGE_HPP
+#define LENGUAGE_HPP
+
 #include <string>
 #include <unordered_map>
 #include "../../lexer/lexer.hpp"
@@ -92,3 +95,5 @@ public:
     int *numeberIndexOperator(TokenType op, Playscripting value);
     int playscriptingToInt(Playscripting value);
 };
+
+#endif

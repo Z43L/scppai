@@ -1,27 +1,133 @@
 #include "lexer.hpp"
-Token::Token(TokenType type, const std::string& value) : type(type), value(value) {
-    std::unordered_map<std::string, TokenType> token_map;
-    token_map.insert({value, type});
-    
-}
-Token::~Token() {}
+#include <cctype>
 
-
-std::unordered_map<std::string, TokenType> token_map(TokenType, const std::string& value)
+void Lexer::readChar()
 {
-    std::unordered_map<std::string, TokenType> token_map;
-    token_map.insert({value, TokenType::Identifier});
-    return token_map;
+    if (read_position >= input.size())
+    {
+        current_char = 0;
+        is_end_of_file = true;
+    }
+    else
+    {
+        current_char = input[read_position];
+    }
+    position = read_position;
+    read_position++;
 }
 
-int main(int ac, char** av) {
-    if (ac < 1) {
-        std::cout << "No input provided." << std::endl;
-        return 1;
+void Lexer::skipWhitespace()
+{
+    while (!is_end_of_file && std::isspace(static_cast<unsigned char>(current_char)))
+    {
+        readChar();
     }
-    std::string input(av[1]);
-    Token token(TokenType::Identifier, input);
-    std::cout << "Token Type: " << static_cast<int>(token.getType()) << std::endl;
-    std::cout << "Token Value: " << token.getValue() << std::endl;
-    return 0;
+}
+
+bool Lexer::isLetter(char ch) const
+{
+    return std::isalpha(static_cast<unsigned char>(ch)) || ch == '_';
+}
+
+Token Lexer::readIdentifier()
+{
+    size_t start = position;
+    while (!is_end_of_file && (isLetter(current_char) || std::isdigit(static_cast<unsigned char>(current_char))))
+    {
+        readChar();
+    }
+
+    std::string value = input.substr(start, position - start);
+    static const std::unordered_map<std::string, TokenType> keywords = {
+        {"if", TokenType::Keyword},
+        {"else", TokenType::Keyword},
+        {"while", TokenType::Keyword},
+        {"for", TokenType::Keyword},
+        {"return", TokenType::Keyword}};
+
+    auto it = keywords.find(value);
+    if (it != keywords.end())
+    {
+        return Token(it->second, value);
+    }
+    return Token(TokenType::Identifier, value);
+}
+
+Token Lexer::readNumber()
+{
+    size_t start = position;
+    while (!is_end_of_file && std::isdigit(static_cast<unsigned char>(current_char)))
+    {
+        readChar();
+    }
+    std::string value = input.substr(start, position - start);
+    return Token(TokenType::Number, value);
+}
+
+Token Lexer::readString()
+{
+    readChar();
+    size_t start = position;
+    while (!is_end_of_file && current_char != '"')
+    {
+        readChar();
+    }
+    std::string value = input.substr(start, position - start);
+    if (current_char == '"')
+    {
+        readChar();
+    }
+    return Token(TokenType::String, value);
+}
+
+Token Lexer::nextToken()
+{
+    if (position == 0 && read_position == 0 && current_char == 0)
+    {
+        readChar();
+    }
+
+    skipWhitespace();
+
+    if (is_end_of_file || current_char == 0)
+    {
+        return Token(TokenType::EndOfFile, "");
+    }
+
+    if (isLetter(current_char))
+    {
+        return readIdentifier();
+    }
+
+    if (std::isdigit(static_cast<unsigned char>(current_char)))
+    {
+        return readNumber();
+    }
+
+    if (current_char == '"')
+    {
+        return readString();
+    }
+
+    char ch = current_char;
+    readChar();
+
+    switch (ch)
+    {
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '=':
+        return Token(TokenType::Operator, std::string(1, ch));
+    case ';':
+    case ',':
+    case '(':
+    case ')':
+    case '{':
+    case '}':
+        return Token(TokenType::Punctuation, std::string(1, ch));
+    default:
+        return Token(TokenType::EndOfFile, "");
+    }
 }

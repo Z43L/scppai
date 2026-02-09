@@ -1,6 +1,6 @@
 #include <string>
 #include <unordered_map>
-#include "lexer/lexer.hpp"
-#include "jit/interprete.hpp"
+#include "src/lexer/lexer.hpp"
+#include "src/jit/interprete.hpp"
 
 
