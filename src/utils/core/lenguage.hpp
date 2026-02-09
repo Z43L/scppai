@@ -3,7 +3,8 @@
 #include "../../lexer/lexer.hpp"
 #include "../../jit/interprete.hpp"
 
-enum class Operator {
+enum class Operator
+{
     ADD,
     SUBTRACT,
     MULTIPLY,
@@ -20,64 +21,74 @@ enum class Operator {
     NOT
 };
 
-enum class Playscripting {
-    LOOP,
-    CONDITIONAL,
-    FUNCTION,
-    VARIABLE,
-    CLASS,
-    INTERFACE,
-    ENUM,
-    NAMESPACE,
-    MODULE,
-    IMPORT,
-    EXPORT,
-    ASINCHRONOUS,
-    SYNCHRONOUS,
-    STATIC,
-    DYNAMIC,
-    SOCKET,
-    READ_CSV,
-    WRITE_CSV,
-    JSON,
-    XML,
-    DATABASE,
-    FILE_IO,
-    NETWORK,
-    THREADING,
-    ERROR_HANDLING,
-    TORCH,
-    TENSOR,
-    CUDA
+enum class Playscripting
+{
+    LOOP = 1,
+    CONDITIONAL = 2,
+    FUNCTION = 3,
+    VARIABLE = 4,
+    CLASS = 5,
+    INTERFACE = 6,
+    ENUM = 7,
+    NAMESPACE = 8,
+    MODULE = 9,
+    IMPORT = 10,
+    EXPORT = 11,
+    ASINCHRONOUS = 12,
+    SYNCHRONOUS = 13,
+    STATIC = 14,
+    DYNAMIC = 15,
+    SOCKET = 16,
+    READ_CSV = 17,
+    WRITE_CSV = 18,
+    JSON = 19,
+    XML = 20,
+    DATABASE = 21,
+    FILE_IO = 22,
+    NETWORK = 23,
+    THREADING = 24,
+    ERROR_HANDLING = 25,
+    TORCH = 26,
+    TENSOR = 27,
+    CUDA = 28
 };
 
-class lenguage {
-    private:
-        int vocales;
-        bool loop;
-        bool condicional;
-        std::string value;
-        Operator &ope;
-        Playscripting &playscripting;
-        std::unordered_map<std::string, Playscripting> playscripting_map;
-        std::unordered_map<std::string, Playscripting, Operator> ordener_playscripting_map;
-    public:
-        lenguage(int vocales, bool loop, bool condicional, Operator &ope, Playscripting &playscripting) : vocales(vocales), loop(loop), condicional(condicional), ope(ope), playscripting(playscripting) {}
-        int getVocales() const { return vocales; }
-        bool isLoop() const { return loop; }
-        bool isCondicional() const { return condicional; }
-        Operator getOperator() const { return ope; }
-        Playscripting getPlayscripting() const { return playscripting; }
-        std::unordered_map<std::string, Playscripting> getPlayscriptingMap();
-        std::unordered_map<std::string, Playscripting, Operator> getOrdenerPlayscriptingMap();
-        std::unordered_map<std::string, Playscripting> setPlayscriptingMap(std::unordered_map<std::string, Playscripting> new_map);
-        std::unordered_map<std::string, Playscripting, Operator> setOrdenerPlayscriptingMap(std::unordered_map<std::string, Playscripting, Operator> new_map);
-        Playscripting setPlayscriptingMap(std::string key, Playscripting value) {
-            playscripting_map[key] = value;
-            return value;
-        }
-        Playscripting setOrdenerPlayscriptingMap(std::string key, Playscripting value, Operator op) {
-           
-        }
+using PlayMap = std::unordered_map<std::string, Playscripting>;
+using OpMap = std::unordered_map<std::string, Operator>;
 
+class lenguage
+{
+private:
+    int vocales;
+    bool loop;
+    bool condicional;
+    std::string value;
+    Token token;
+    TokenType tokenType;
+    Operator ope;
+    Playscripting playscripting;
+    PlayMap playscripting_map;
+    PlayMap ordener_playscripting_map;
+
+public:
+    lenguage(int vocales, bool loop, const Token &tokenArg, const TokenType &tokenTypeArg, bool condicional, Operator opeArg, Playscripting playscriptingArg)
+        : vocales(vocales), loop(loop), condicional(condicional), value(""), token(tokenArg), tokenType(tokenTypeArg), ope(opeArg), playscripting(playscriptingArg)
+    {
+        // keep default initialization minimal
+    }
+    ~lenguage() {};
+    int getVocales() const { return vocales; }
+    bool isLoop() const { return loop; }
+    bool isCondicional() const { return condicional; }
+    Operator getOperator() const { return ope; }
+    Playscripting getPlayscripting() const { return playscripting; }
+    PlayMap getPlayscriptingMap();
+    PlayMap getOrdenerPlayscriptingMap();
+    PlayMap setPlayscriptingMap(const PlayMap &new_map);
+    PlayMap setOrdenerPlayscriptingMap(const std::string &tipe, const PlayMap &new_map);
+    Playscripting setOrdenerPlayscriptingMap(std::string key, Playscripting value, Operator op);
+    std::string OperatorToString(Operator op);
+    int operatorToInt(Operator op);
+    int *numeberIndexOperator(TokenType op, Playscripting value);
+    int playscriptingToInt(Playscripting value);
 };

@@ -38,20 +38,20 @@ enum class RelevationPlayscripting {
 
 
 enum class TokenType {
-    Identifier,
-    Number,
-    String,
-    Keyword,
-    Operator,
-    Punctuation,
-    EndOfFile
+    Identifier = 0,
+    Number = 1,
+    String = 2,
+    Keyword = 3,
+    Operator = 4,
+    Punctuation = 5,
+    EndOfFile = 6
 };
 
 class Token {
     private:
         TokenType type;
         std::string value;
-        
+        int tokenTypeInt;
         std::unordered_map<std::string, TokenType> map;
     public:
         Token(TokenType type, const std::string& value) : type(type), value(value) {}
@@ -65,6 +65,7 @@ class Token {
         std::unordered_map<std::string, TokenType> setTokenMap(const std::unordered_map<std::string, TokenType>& new_map);
         std::unordered_map<std::string, TokenType>   Token::load_token_map(std::unordered_map<std::string, TokenType>  tipe);
         std::unordered_map<std::string, TokenType> setvalue(std::unordered_map<std::string, TokenType> new_map) ;
+        int getTokenTypeInt(TokenType type);
         std::unordered_map<std::string, TokenType> punctuation = {
                 {";", TokenType::Punctuation},
                 {",", TokenType::Punctuation},

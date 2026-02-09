@@ -19,3 +19,7 @@ std::unordered_map<std::string, TokenType> Token::setvalue(std::unordered_map<st
     return map;
 }
 
+int Token::getTokenTypeInt(TokenType type) {
+    return static_cast<int>(type);
+    
+}
