@@ -3,20 +3,20 @@
 void interprete::tokenize() {
             while (true) {
                 Token token = lexer.nextToken();
-                if (token.getType() == TokenType::EndOfFile) {
+                if (token.getType() == TokenType::Type::EndOfFile) {
                     break;
                 }
-                else if(token.getType() == TokenType::Identifier) {
+                else if(token.getType() == TokenType::Type::Identifier) {
                     tokens[token.getValue()] = token.getType();
                     
                 }
-                else if(token.getType() == TokenType::Keyword) {
+                else if(token.getType() == TokenType::Type::Keyword) {
                     tokens[token.getValue()] = token.getType();
                 }
-                else if(token.getType() == TokenType::Operator) {
+                else if(token.getType() == TokenType::Type::Operator) {
                     tokens[token.getValue()] = token.getType();
                 }
-                else if(token.getType() == TokenType::Punctuation) {
+                else if(token.getType() == TokenType::Type::Punctuation) {
                     tokens[token.getValue()] = token.getType();
                 }
                 else {

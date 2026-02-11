@@ -14,7 +14,7 @@ void Lexer::readChar()
     }
     position = read_position;
     read_position++;
-}
+} 
 
 void Lexer::skipWhitespace()
 {
@@ -23,10 +23,189 @@ void Lexer::skipWhitespace()
         readChar();
     }
 }
-
-bool Lexer::isLetter(char ch) const
+std::unordered_map<std::string, TokenType::NodeContent>  TokenType::getTokenType(std::string value, TokenType::PrincipalType principaltype, TokenType::ExecutionContext context, TokenType::NodeContent content  , int i,TokenType type )
 {
-    return std::isalpha(static_cast<unsigned char>(ch)) || ch == '_';
+    std::unordered_map<std::string, TokenType::NodeContent> token_map;
+    if(TokenType::getPrincipalTypeString(principaltype) == "var" || TokenType::getPrincipalTypeString(principaltype) == "function" || TokenType::getPrincipalTypeString(principaltype) == "class" || TokenType::getPrincipalTypeString(principaltype) == "#include" || TokenType::getPrincipalTypeString(principaltype) == "#define" || TokenType::getPrincipalTypeString(principaltype) == "export")
+    {
+        content.type.replace(0, content.type.size(), "Identifier");
+        content.context = &context;
+        context.variables.insert({ value, 0});
+        token_map.insert({value, content});
+    }
+    else
+    {
+        if(getPuntuationString(value) == "(")
+        {
+            content.context = &context;
+            content.positionEjecution = i- 1;
+            content.punctuation = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Punctuation");
+            token_map.insert({value, content});
+        }
+        else if(getPuntuationString(value) == ")")
+        {
+            content.context = &context;
+            content.positionEjecution = i- 2;
+            content.punctuation = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Punctuation");
+            token_map.insert({value, content});
+        }
+        else if(getPuntuationString(value) == "{")
+        {
+            content.context = &context;
+            content.positionEjecution = i- 3;
+            content.punctuation = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Punctuation");
+            token_map.insert({value, content});
+        }
+        else if(getPuntuationString(value) == "}")
+        {
+            content.context = &context;
+            content.positionEjecution = i- 4;
+            content.punctuation = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Punctuation");
+            token_map.insert({value, content});
+        }
+        else if(getPuntuationString(value) == ";")
+        {
+            content.context = &context;
+            content.positionEjecution = i- 5;
+            content.punctuation = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Punctuation");
+            token_map.insert({value, content});
+        }
+        else if(getPuntuationString(value) == ",")
+        {
+            content.context = &context;
+            content.positionEjecution = i- 6;
+            content.punctuation = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Punctuation");
+            token_map.insert({value, content});
+        }
+        else if(getNodeTypeString(content.NodeXType) == "Identifier")
+        {
+            content.context = &context;
+            content.positionEjecution = i;
+            content.type.insert(0, "Identifier");
+            if(value == "var" || value == "function" || value == "class" || value == "#include" || value == "#define" || value == "export")
+            {
+                content.PrincipalType = principaltype;
+                if(value == "function")
+                {
+                    context.functions.insert({ value, 2});
+                }
+                if (value == "class")
+                {
+                    context.classes.insert({ value, 1});
+                }
+                if(value == "while")
+                {
+                    context.whileLoops.insert({ value, 3});
+                }
+                if(value == "for")
+                {
+                    context.forLoops.insert({ value, 4});
+                }
+                if(value == "if")
+                {
+                    context.ifStatements.insert({ value, 5});
+                }
+                if(value == "else if")
+                {
+                    context.elseIfStatements.insert({ value, 6});   
+                }
+            }
+            content.tokenTypeInt = 0;
+            context.variables.insert({ value, 0});
+            token_map.insert({value, content});
+        }
+        else if(getNodeTypeString(content.NodeXType) == "Operator")
+        {
+            content.context = &context;
+            content.positionEjecution = i;
+            content.operators = value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Operator");
+            if(value == "+")
+            {
+                content.OperatorType = TokenType::OperatorType::Plus;
+            }
+            else if(value == "-")
+            {
+                content.OperatorType = TokenType::OperatorType::Minus;
+            }
+            else if(value == "*")
+            {
+                content.OperatorType = TokenType::OperatorType::Multiply;
+            }
+            else if(value == "/")
+            {
+                content.OperatorType = TokenType::OperatorType::Divide;
+            }
+            else if(value == "=")
+            {
+                content.OperatorType = TokenType::OperatorType::Equal;
+            }
+            else if(value == "+=")
+            {   
+                 content.OperatorType = TokenType::OperatorType::EqualPlus;
+            }
+            else if(value == "-=")
+            {
+                    content.OperatorType = TokenType::OperatorType::EqualMinus;
+            }
+            token_map.insert({value, content}); 
+        }
+        else if(getNodeTypeString(content.NodeXType) == "Keyword")
+        {
+            content.context = &context;
+            content.positionEjecution = i;
+            content.keywords =value;
+            context.variables.insert({ value, 0});
+            content.type.insert(0, "Keyword");
+            token_map.insert({value, content});
+        }
+        else if (getNodeTypeString(content.NodeXType) == "String")
+        {
+            content.context = &context;
+            content.positionEjecution = i;
+            content.type.insert(0, "String");
+            content.ValueType = TokenType::ValueType::String;
+            context.variables.insert({ value, 0});
+            token_map.insert({value, content});
+        }
+        else if(getNodeTypeString(content.NodeXType) == "Number")
+        {
+            content.context = &context;
+            content.positionEjecution = i;
+            content.type.insert(0, "Number");
+            content.ValueType = TokenType::ValueType::Number;
+            context.variables.insert({ value, 0});
+            token_map.insert({value, content});
+        }
+        else
+        {
+            content.context = &context;
+            content.positionEjecution = i;
+            content.type.insert(0, "Unknown");
+            context.variables.insert({ value, 0});
+
+            token_map.insert({value, content});
+        }
+    }
+    return token_map;
+}
+int isLetter(char ch)
+{
+    if (std::isalpha(static_cast<unsigned char>(ch)) || ch == '_') return 1;
+    return 0;
 }
 
 Token Lexer::readIdentifier()

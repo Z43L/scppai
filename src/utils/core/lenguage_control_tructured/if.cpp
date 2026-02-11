@@ -1,14 +1,6 @@
 #include "if.hpp"
 
-void IfControl::executeIf()
+void IfControl::executeIf(t_IfControl ifControl)
 {
-    std::cout << "Executing if statement..." << std::endl;
-
-    
-}
-
-void IfControl::executeIf()
-{
-    
     std::cout << "Executing if statement..." << std::endl;
 }

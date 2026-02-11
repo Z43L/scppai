@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 
+class Token;
 class TokenType
 {
 private:
@@ -134,29 +135,26 @@ public:
         {"#include", TokenType::PrincipalType::Include},
         {"#define", TokenType::PrincipalType::Define},
         {"export", TokenType::PrincipalType::Export}};
-    void parseStatement(Token token);
+    void parseStatement(Token &token, TokenType &type);
     NodeType getNodeType() const;
     NodeContent *createNode(const std::string &value, const std::string &type);
     ExecutionContext createExecutionContext() const;
     std::unordered_map<std::string, TokenType> readExecutionContext(const ExecutionContext &context);
     int orderExecutionContext(const ExecutionContext &context);
     std::unordered_map<std::string, TokenType::Type> load_token_map(TokenType::Type type, std::string value);
-    //std::unordered_map<std::string, TokenType> setTokenMap(std::string value, TokenType type,std::unordered_map<std::string, TokenType> token_map);
-    std::unordered_map<std::string, TokenType> setPuntuation(const std::unordered_map<std::string, TokenType> &new_map, int tokenTypeInt );
+    std::unordered_map<std::string, TokenType> setPuntuation(const std::unordered_map<std::string, TokenType> &new_map, int tokenTypeInt);
     std::unordered_map<std::string, TokenType> setOperators(const std::unordered_map<std::string, TokenType> &new_map);
     std::unordered_map<std::string, TokenType> setKeywords(const std::unordered_map<std::string, TokenType> &new_map);
     std::string setvalue(std::string value);
-    ExecutionContext createExecutionContext() const;
-    std::unordered_map<std::string, TokenType> readExecutionContext(const ExecutionContext &context);
-    std::unordered_map<std::string, TokenType::NodeContent > setTokenPriorityMap(std::string value, TokenType::PrincipalType principaltype , TokenType type,TokenType::NodeContent content, int i);
+    std::unordered_map<std::string, TokenType::NodeContent> setTokenPriorityMap(std::string value, TokenType::PrincipalType principaltype, TokenType type, TokenType::NodeContent content, int i);
     std::string getNodeTypeString(NodeType nodeType);
     std::string getPrincipalTypeString(PrincipalType principalType);
     std::string getTypeString(Type type);
-    std::unordered_map<std::string, TokenType::NodeContent> setTokenMap(std::string value, TokenType type,TokenType::PrincipalType principaltype, TokenType::ExecutionContext context, TokenType::NodeContent content);
+    std::unordered_map<std::string, TokenType::NodeContent> getTokenType(std::string value, TokenType::PrincipalType principaltype, TokenType::ExecutionContext context, TokenType::NodeContent content, int i, TokenType type);
     std::string getTypeOperatorString(OperatorType type);
     std::string getPuntuationString(std::string value);
     std::string getStatementTypeString(StattementType type);
-    void TokenType::parseStatement(Token &token, TokenType &type);
+    std::unordered_map<std::string, TokenType::NodeContent> setTokenMap(std::string value, TokenType type, TokenType::PrincipalType principaltype, TokenType::ExecutionContext context, TokenType::NodeContent content);
 };
 
 
@@ -171,15 +169,17 @@ class Lexer
         bool is_loop;
         
     public:
-        Lexer(const std::string &input) : input(input), position(0), read_position(0), current_char(0), is_end_of_file(false), is_loop(false) {};
+        Lexer(std::string &input) : input(input), position(0), read_position(0), current_char(0), is_end_of_file(false), is_loop(false) {};
         void readChar();
-        Token token;
+        TokenType getTokenType(std::string value);
+        TokenType &type();
+        Token &token(TokenType &type, const std::string &value);
         Token nextToken();
         void skipWhitespace();
         Token readIdentifier();
         Token readNumber();
         Token readString();
-        bool isLetter(char ch) const;
+        int isLetter(char ch) ;
 };
 
 
@@ -188,21 +188,17 @@ class Token
 {
 private:
     
-    TokenType type;
+    TokenType::Type type;
     std::string value;
     int tokenTypeInt;
     int positionEjecution;
     std::unordered_map<TokenType, std::string> map;
 
 public:
-    Token(TokenType &type,std::string &value) : nodeType(type), type(type), value(value) {        
-    }
-    ~Token() {
-        delete &nodeType;
-
-    }
-    TokenType& nodeType;
-    TokenType getType(TokenType &nodeType);
+    Token() : type(TokenType::Type::EndOfFile), value("") {}
+    Token(TokenType::Type type, const std::string &value) : type(type), value(value) {}
+    ~Token() = default;
+    TokenType::Type getType() const { return type; }
     std::string getValue() const { return value; }
     TokenType load_token_map(TokenType tipe) const;
     std::unordered_map<std::string, TokenType> token_map(TokenType type, const std::string &value);
@@ -210,9 +206,8 @@ public:
     std::unordered_map<std::string, TokenType> setTokenMap(const std::unordered_map<std::string, TokenType> &new_map);
     std::unordered_map<std::string, TokenType> load_token_map(std::unordered_map<std::string, TokenType> tipe);
     std::unordered_map<std::string, TokenType> setvalue(std::unordered_map<std::string, TokenType> new_map);
-    int getTokenTypeInt(TokenType type);
+    int getTokenTypeInt(TokenType::Type type);
     int follow_token_map(const std::unordered_map<std::string, TokenType> &token_map);
-    int getTokenTypeInt(TokenType type);
     void addError(const std::string &error);
 };
 

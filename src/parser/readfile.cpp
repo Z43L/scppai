@@ -10,31 +10,198 @@ std::vector<std::string> Parser::getErrors() const
     return errors;
 }
 
+namespace
+{
+bool readFileToString(const std::string &filename, std::string &out)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        return false;
+    }
+    out.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+    return true;
+}
+
+std::string tokenTypeToString(TokenType::Type type)
+{
+    switch (type)
+    {
+    case TokenType::Type::Identifier:
+        return "Identifier";
+    case TokenType::Type::Keyword:
+        return "Keyword";
+    case TokenType::Type::Operator:
+        return "Operator";
+    case TokenType::Type::Punctuation:
+        return "Punctuation";
+    case TokenType::Type::Number:
+        return "Number";
+    case TokenType::Type::String:
+        return "String";
+    case TokenType::Type::EndOfFile:
+        return "EndOfFile";
+    default:
+        return "Unknown";
+    }
+}
+
+TokenType::NodeContent makeNodeContent(const Token &token, int position)
+{
+    TokenType::NodeContent content{};
+    const TokenType::Type type = token.getType();
+
+    content.positionEjecution = position;
+    content.value = token.getValue();
+    content.type = tokenTypeToString(type);
+    content.tokenTypeInt = static_cast<int>(type);
+    content.context = nullptr;
+    content.Type = type;
+    content.NodeXType = TokenType::NodeType::Expression;
+    content.PrincipalType = TokenType::PrincipalType::Variable;
+
+    if (type == TokenType::Type::Keyword)
+    {
+        content.keywords = token.getValue();
+    }
+    else if (type == TokenType::Type::Operator)
+    {
+        content.operators = token.getValue();
+        if (token.getValue() == "+")
+        {
+            content.OperatorType = TokenType::OperatorType::Plus;
+        }
+        else if (token.getValue() == "-")
+        {
+            content.OperatorType = TokenType::OperatorType::Minus;
+        }
+        else if (token.getValue() == "*")
+        {
+            content.OperatorType = TokenType::OperatorType::Multiply;
+        }
+        else if (token.getValue() == "/")
+        {
+            content.OperatorType = TokenType::OperatorType::Divide;
+        }
+        else if (token.getValue() == "=")
+        {
+            content.OperatorType = TokenType::OperatorType::Equal;
+        }
+    }
+    else if (type == TokenType::Type::Punctuation)
+    {
+        content.punctuation = token.getValue();
+    }
+    else if (type == TokenType::Type::String)
+    {
+        content.ValueType = TokenType::ValueType::String;
+    }
+    else if (type == TokenType::Type::Number)
+    {
+        content.ValueType = TokenType::ValueType::Number;
+    }
+
+    return content;
+}
+}
+
 std::vector<Token> Parser::readFiles(const std::string &filename)
 {
-    
-    TokenType type;
-    
+    tokens.clear();
+    compiler_maps.clear();
+
     if (filename.empty())
     {
         addError("Filename is empty.");
         return tokens;
     }
-    std::string filess  =  std::fstream(filename).is_open() ? std::string((std::istreambuf_iterator<char>(std::fstream(filename).rdbuf())), std::istreambuf_iterator<char>()) : "";
-    if (filess.empty())
+
+    std::string content;
+    if (!readFileToString(filename, content))
     {
         addError("Failed to read file: " + filename);
         return tokens;
     }
-    Token token(type, filess);
-    Parser::Tokan.token_map(type, filess);
-    Lexer lexer(filess);
-    token = lexer.nextToken();
-    while (token.getType(token.nodeType).getNodeType() != TokenType::NodeType::EndOfFile)
+    if (content.empty())
     {
-        tokens.push_back(token);
-        token =- lexer.nextToken();
+        addError("File is empty: " + filename);
+        return tokens;
     }
+
+    input = content;
+    Lexer lexer(content);
+
+    int position = 0;
+    auto &file_map = compiler_maps[filename];
+    for (;;)
+    {
+        Token token = lexer.nextToken();
+        if (token.getType() == TokenType::Type::EndOfFile)
+        {
+            break;
+        }
+        tokens.push_back(token);
+        file_map[token.getValue()] = makeNodeContent(token, position);
+        position++;
+    }
+
+    return tokens;
+}
+
+std::vector<Token> Parser::readFiles(const std::vector<std::string> &filenames)
+{
+    tokens.clear();
+    compiler_maps.clear();
+    input.clear();
+
+    if (filenames.empty())
+    {
+        addError("Filenames list is empty.");
+        return tokens;
+    }
+
+    for (const auto &filename : filenames)
+    {
+        if (filename.empty())
+        {
+            addError("Filename is empty.");
+            continue;
+        }
+
+        std::string content;
+        if (!readFileToString(filename, content))
+        {
+            addError("Failed to read file: " + filename);
+            continue;
+        }
+        if (content.empty())
+        {
+            addError("File is empty: " + filename);
+            continue;
+        }
+
+        if (!input.empty())
+        {
+            input.push_back('\n');
+        }
+        input += content;
+
+        Lexer lexer(content);
+        int position = 0;
+        auto &file_map = compiler_maps[filename];
+        for (;;)
+        {
+            Token token = lexer.nextToken();
+            if (token.getType() == TokenType::Type::EndOfFile)
+            {
+                break;
+            }
+            tokens.push_back(token);
+            file_map[token.getValue()] = makeNodeContent(token, position);
+            position++;
+        }
+    }
+
     return tokens;
 }
 
@@ -43,7 +210,7 @@ void Parser::addError(const std::string &error)
     errors.push_back(error);
 }
 
-void TokenType::parseStatement(Token &token, TokenType &type, Parser &parser)
+void TokenType::parseStatement(Token &token, TokenType &type)
 {
     if (type.getNodeTypeString(TokenType::NodeType::Statement) == "Statement")
     {
@@ -64,41 +231,6 @@ void TokenType::parseStatement(Token &token, TokenType &type, Parser &parser)
             type.parseStatement(token, type);
         }
     }
-    else
-    {
-        parser.addError("Expected a statement, but got: " + token.getValue());
-    }
-    if (token.getType() == TokenType::Type::Identifier)
-    {
-        if(type  + 1 < tokens.size() && tokens[position + 1].getType() == TokenType::Type::Operator && tokens[position + 1].getValue() == "=")
-        {
-            // Handle assignment statements
-        }
-        if(position + 1 < tokens.size() && tokens[position + 1].getType() == TokenType::Type::Punctuation && tokens[position + 1].getValue() == ";")
-        {
-        }
-        if(position + 1 < tokens.size() && tokens[position + 1].getType() == TokenType::Type::Punctuation && tokens[position + 1].getValue() == "(")
-        {
-            // Handle function calls
-            if(position + 2 < tokens.size() && tokens[position + 2].getType() == TokenType::Type::Punctuation && tokens[position + 2].getValue() == ")")
-            {
-                // Handle function calls with no arguments
-            }
-            else
-            {
-                // Handle function calls with arguments
-            }
-        }
-        
-        else
-        {
-            parser.addError("Unexpected identifier: " + token.getValue());
-        }
-    }
-    else
-    {
-        parser.addError("Unexpected token: " + token.getValue());
-    }
 }
 void Parser::parseExpression(std::vector<Token> &tokens)
 {
@@ -107,9 +239,10 @@ void Parser::parseExpression(std::vector<Token> &tokens)
         addError("No tokens to parse.");
         return;
     }
-    while(tokens[position].getType() != TokenType::EndOfFile)
+    while (position < tokens.size() && tokens[position].getType() != TokenType::Type::EndOfFile)
     {
-        parseStatement(tokens[position]);
+        type.parseStatement(tokens[position], type);
+        position++;
     }
 }  
 void Parser::parse()

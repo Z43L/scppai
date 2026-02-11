@@ -121,28 +121,9 @@ void Token::addError(const std::string &error)
     std::cerr << "Error: " << error << std::endl;
 }
 
-int Token::getTokenTypeInt(TokenType type)
+int Token::getTokenTypeInt(TokenType::Type type)
 {
-    if (type.getNodeType() == TokenType::NodeType::Statement)
-    {
-        return 1;
-    }
-    else if (type.getNodeType() == TokenType::NodeType::Expression)
-    {
-        return 2;
-    }
-    else if (type.getNodeType() == TokenType::NodeType::Term)
-    {
-        return 3;
-    }
-    else if (type.getNodeType() == TokenType::NodeType::Factor)
-    {
-        return 4;
-    }
-    else
-    {
-        return 0;
-    }
+    return static_cast<int>(type);
 }
 
 std::unordered_map<std::string, TokenType> Token::getTokenMap(std::unordered_map<std::string, TokenType> map) const
@@ -267,7 +248,6 @@ int Token::follow_token_map(const std::unordered_map<std::string, TokenType> &to
     if (it != token_map.end())
     {
         return -1;
-        type = it->second;
     }
-    return Token::getTokenTypeInt(nodeType);
+    return Token::getTokenTypeInt(type);
 }
