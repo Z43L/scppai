@@ -36,10 +36,10 @@ int lenguage::playscriptingToInt(Playscripting value) {
     return -1; // Valor predeterminado para valores no reconocidos
 }
 
-int *lenguage::numeberIndexOperator(TokenType op, Playscripting value) {
+int *lenguage::numeberIndexOperator(TokenType::Type op, Playscripting value) {
     int *index = new int[41];
     switch (op){
-        case TokenType::Operator: {
+        case TokenType::Type::Operator: {
             
             index[0] = operatorToInt(Operator::ADD);
             index[1] = operatorToInt(Operator::SUBTRACT);

@@ -12,6 +12,7 @@ OBJ_DIR = $(BUILD_DIR)/obj
 SRCS = main.cpp \
 	   src/lexer/lexer.cpp \
        src/lexer/token.cpp \
+       src/parser/readfile.cpp \
        src/jit/interprete.cpp \
        src/utils/core/lenguage.cpp \
        src/utils/core/operator.cpp
@@ -33,6 +34,9 @@ $(OBJ_DIR)/lexer.o: src/lexer/lexer.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/token.o: src/lexer/token.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/readfile.o: src/parser/readfile.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/interprete.o: src/jit/interprete.cpp | $(OBJ_DIR)
@@ -61,4 +65,3 @@ run: all
 
 # Phony targets
 .PHONY: all clean run
-

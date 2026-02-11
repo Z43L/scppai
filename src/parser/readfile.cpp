@@ -5,10 +5,7 @@ std::string Parser::setvalue(std::string value)
 {
     return value;
 }
-std::vector<std::string> Parser::getErrors() const
-{
-    return errors;
-}
+// getErrors() is inline in parse.hpp
 
 namespace
 {
@@ -208,6 +205,34 @@ std::vector<Token> Parser::readFiles(const std::vector<std::string> &filenames)
 void Parser::addError(const std::string &error)
 {
     errors.push_back(error);
+}
+
+const std::unordered_map<std::string, TokenType::NodeContent> *Parser::getCompilerMapForFile(const std::string &filename) const
+{
+    auto it = compiler_maps.find(filename);
+    if (it == compiler_maps.end())
+    {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+std::unordered_map<std::string, TokenType::NodeContent> Parser::mergeCompilerMaps()
+{
+    std::unordered_map<std::string, TokenType::NodeContent> merged;
+    for (const auto &file_entry : compiler_maps)
+    {
+        for (const auto &token_entry : file_entry.second)
+        {
+            if (merged.find(token_entry.first) != merged.end())
+            {
+                addError("Duplicate token key while merging: " + token_entry.first + " (file: " + file_entry.first + ")");
+                continue;
+            }
+            merged[token_entry.first] = token_entry.second;
+        }
+    }
+    return merged;
 }
 
 void TokenType::parseStatement(Token &token, TokenType &type)

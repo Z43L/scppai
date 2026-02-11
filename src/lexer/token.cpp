@@ -45,6 +45,16 @@ std::string TokenType::getStatementTypeString(StattementType type)
         return "Unknown";
     }
 }
+
+std::string TokenType::getPuntuationString(std::string value)
+{
+    auto it = punctuation.find(value);
+    if (it != punctuation.end())
+    {
+        return it->first;
+    }
+    return "";
+}
 std::string TokenType::getTypeOperatorString(OperatorType type)
 {
     switch (type)

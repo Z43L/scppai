@@ -8,8 +8,12 @@ int main(int ac, char** av) {
         return 1;
     }
     std::string input = av[1];
-    Token token(TokenType::Identifier, input);
-    std::cout << "Token Type: " << static_cast<int>(token.getType()) << std::endl;
-    std::cout << "Token Value: " << token.getValue() << std::endl;
+    Lexer lexer(input);
+    Parser parser ({}, 0, input, lexer);
+    std::vector<Token> tokens = parser.readFiles(input);
+    parser.parse();
+    int tokenCount = tokens.size();
+
+    std::cout <<"Total tokens: " << tokenCount << std::endl;
     return 0;
 }

@@ -169,9 +169,10 @@ class Lexer
         bool is_loop;
         
     public:
-        Lexer(std::string &input) : input(input), position(0), read_position(0), current_char(0), is_end_of_file(false), is_loop(false) {};
+        Lexer() : input(""), position(0), read_position(0), current_char(0), is_end_of_file(false), is_loop(false) {}
+        Lexer(const std::string &input) : input(input), position(0), read_position(0), current_char(0), is_end_of_file(false), is_loop(false) {}
         void readChar();
-        TokenType getTokenType(std::string value);
+        void readCharLoop();
         TokenType &type();
         Token &token(TokenType &type, const std::string &value);
         Token nextToken();
@@ -192,7 +193,7 @@ private:
     std::string value;
     int tokenTypeInt;
     int positionEjecution;
-    std::unordered_map<TokenType, std::string> map;
+    std::unordered_map<TokenType::Type, std::string> map;
 
 public:
     Token() : type(TokenType::Type::EndOfFile), value("") {}

@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "../../main.hpp"
+#include "../lexer/lexer.hpp"
 #include <fstream>
 
 
@@ -39,6 +39,8 @@ class Parser
         std::string getValue() const { return Tokan.getValue(); }
         std::string setvalue(std::string value);
         const std::unordered_map<std::string, std::unordered_map<std::string, TokenType::NodeContent>> &getCompilerMaps() const { return compiler_maps; }
+        const std::unordered_map<std::string, TokenType::NodeContent> *getCompilerMapForFile(const std::string &filename) const;
+        std::unordered_map<std::string, TokenType::NodeContent> mergeCompilerMaps();
 };
 
 #endif

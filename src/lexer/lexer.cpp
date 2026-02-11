@@ -202,9 +202,12 @@ std::unordered_map<std::string, TokenType::NodeContent>  TokenType::getTokenType
     }
     return token_map;
 }
-int isLetter(char ch)
+int Lexer::isLetter(char ch)
 {
-    if (std::isalpha(static_cast<unsigned char>(ch)) || ch == '_') return 1;
+    if (std::isalpha(static_cast<unsigned char>(ch)) || ch == '_')
+    {
+        return 1;
+    }
     return 0;
 }
 
@@ -217,7 +220,7 @@ Token Lexer::readIdentifier()
     }
 
     std::string value = input.substr(start, position - start);
-    static const std::unordered_map<std::string, TokenType> keywords = {
+    static const std::unordered_map<std::string, TokenType::Type> keywords = {
         {"if", TokenType::Type::Keyword},
         {"else", TokenType::Type::Keyword},
         {"while", TokenType::Type::Keyword},

@@ -92,7 +92,7 @@ public:
     Playscripting setOrdenerPlayscriptingMap(std::string key, Playscripting value, Operator op);
     std::string OperatorToString(Operator op);
     int operatorToInt(Operator op);
-    int *numeberIndexOperator(TokenType op, Playscripting value);
+    int *numeberIndexOperator(TokenType::Type op, Playscripting value);
     int playscriptingToInt(Playscripting value);
 };
 
