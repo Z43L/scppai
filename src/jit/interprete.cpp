@@ -50,3 +50,36 @@ std::vector<Token> interprete::interpreterIf(std::vector<Token> tokens )
     return tokeif;
 
 }
+
+std::vector<Token> interprete::interpreterFuction(std::vector<Token> tokenswhile, int i)
+{
+    std::vector<Token> new_token_map;
+    while(tokenswhile.at(i).getType() != TokenType::Type::EndOfFile)
+    {
+        if(tokenswhile.at(i).getType() == TokenType::Type::Identifier && tokenswhile.at(i).getValue() == "if")
+        {
+            auto result = interprete::interpreterIf(tokenswhile);
+            new_token_map.insert(new_token_map.end(), result.begin(), result.end());
+        }
+        if(tokenswhile.at(i).getType() == TokenType::Type::Identifier && tokenswhile.at(i).getValue() == "fuction")
+        {
+            auto result = interprete::interpreterFuction(tokenswhile, i);
+            new_token_map.insert(new_token_map.end(), result.begin(), result.end());
+        }
+        if(tokenswhile.at(i).getType() == TokenType::Type::Operator)
+        {
+            new_token_map.push_back(tokenswhile.at(i));
+        }
+        if(tokenswhile.at(i).getType() == TokenType::Type::Number)
+        {
+            new_token_map.push_back(tokenswhile.at(i));
+        }
+        if(tokenswhile.at(i).getType() == TokenType::Type::String)
+        {
+            new_token_map.push_back(tokenswhile.at(i));
+        }
+        
+    }
+    return new_token_map;
+
+}
